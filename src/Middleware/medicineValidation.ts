@@ -1,6 +1,9 @@
 
 import { NextFunction, Request, Response } from "express"
 import Joi from "joi"
+import path from "path"
+import { ROOT_DIRECTORY } from "../config"
+import fs from "fs"
 
 /** create a rule/schema 
  * for add new medicine
@@ -22,6 +25,15 @@ const createValidation = (
 ) => {
     const validation = createSchema.validate(req.body)
     if(validation.error){
+        /** delete current uploaded file */
+        let fileName: string = req.file?.filename || ``
+        let pathfile: string = path.join(ROOT_DIRECTORY, "public","medicine-photo",fileName) 
+        
+        let fileExists = fs.existsSync(pathfile)
+
+        if (fileExists && fileName !== ``){
+            fs.unlinkSync(pathfile)
+        }
         return res.status(400)
         .json({
             message: validation
@@ -54,6 +66,16 @@ const updateValidation = (
 ) => {
     const validation = updateSchema.validate(req.body)
     if(validation.error){
+        /** delete current uploaded file */
+        let fileName: string = req.file?.filename || ``
+        let pathfile: string = path.join(ROOT_DIRECTORY, "public","medicine-photo",fileName) 
+            
+        let fileExists = fs.existsSync(pathfile)
+    
+        if (fileExists && fileName !== ``){
+           fs.unlinkSync(pathfile)
+        }
+        
         return res.status(400)
         .json({
             message: validation
